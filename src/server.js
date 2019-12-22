@@ -11,11 +11,6 @@ const app = express();
 const server = http.Server(app);
 const io = socketio(server);
 
-io.on('connection', socket => {
-  console.log(socket.handshake.query);
-  console.log('User ', socket.id);
-});
-
 mongoose.connect(
   'mongodb+srv://omnistack9:omnistack9@cluster0-ptgo3.mongodb.net/semana09?retryWrites=true&w=majority',
   {
@@ -23,6 +18,21 @@ mongoose.connect(
     useUnifiedTopology: true,
   }
 );
+
+const connectedUsers = {};
+
+io.on('connection', socket => {
+  const { user_id } = socket.handshake.query;
+
+  connectedUsers[user_id] = socket.id;
+});
+
+app.use((req, res, next) => {
+  req.io = io;
+  req.connectedUsers = connectedUsers;
+
+  return next();
+});
 
 app.use(cors());
 app.use(express.json());
