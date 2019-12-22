@@ -31,4 +31,12 @@ module.exports = {
 
     return res.json(spot);
   },
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const spot = await Spot.findOneAndDelete({ _id: id });
+
+    return res.json(spot);
+  },
 };
